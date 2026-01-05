@@ -12,8 +12,8 @@
 		<Company></Company>
 		<Description>A beautiful and customizable monitoring dashboard for WolverineFx.</Description>
 		<PackageTags>monitoring;dashboard;aspnetcore;middleware;wolverinefx;ui</PackageTags>
-		<PackageProjectUrl>https://github.com/yourcompany/monitoring-dashboard</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/yourcompany/monitoring-dashboard</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/muhammad-hari/DashboardWolverine</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/muhammad-hari/DashboardWolverine</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
