@@ -1,0 +1,2318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{DASHBOARD_TITLE}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        :root {
+            --background: #FFFFFF;
+            --foreground: #242424;
+            --card: #FFFFFF;
+            --card-foreground: #242424;
+            --primary: #1A1A1A;
+            --primary-foreground: #FFFFFF;
+            --secondary: #F7F7F7;
+            --secondary-foreground: #242424;
+            --muted: #FAFAFA;
+            --muted-foreground: #6B6B6B;
+            --accent: #0A85D1;
+            --accent-foreground: #FFFFFF;
+            --destructive: #E74C3C;
+            --destructive-foreground: #FFFFFF;
+            --success: #27AE60;
+            --success-foreground: #FFFFFF;
+            --border: #E6E6E6;
+            --input: #F2F2F2;
+            --ring: #0A85D1;
+            --radius: 0.375rem;
+        }
+
+        .dark {
+            --background: #0F0F0F;
+            --foreground: #E6E6E6;
+            --card: #191919;
+            --card-foreground: #E6E6E6;
+            --primary: #E6E6E6;
+            --primary-foreground: #0F0F0F;
+            --secondary: #1A1A1A;
+            --secondary-foreground: #E6E6E6;
+            --muted: #1F1F1F;
+            --muted-foreground: #A3A3A3;
+            --accent: #1E96D8;
+            --accent-foreground: #FFFFFF;
+            --destructive: #E74C3C;
+            --destructive-foreground: #FFFFFF;
+            --success: #27AE60;
+            --success-foreground: #FFFFFF;
+            --border: #2A2A2A;
+            --input: #262626;
+            --ring: #1E96D8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            line-height: 1.75;
+            font-size: 16px;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header {
+            background: var(--background);
+            padding: 3rem 0 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 3rem;
+            transition: all 0.3s ease;
+        }
+
+        .header h1 {
+            color: var(--foreground);
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header p {
+            color: var(--muted-foreground);
+            font-size: 1rem;
+            line-height: 1.75;
+            font-weight: 400;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            background: transparent;
+            padding: 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 3rem;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-bottom: 2px solid transparent;
+            background: transparent;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            font-size: 0.9375rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab:hover {
+            color: var(--foreground);
+            background: transparent;
+        }
+
+        .tab.active {
+            color: var(--foreground);
+            border-bottom-color: var(--accent);
+            font-weight: 500;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .stat-card {
+            background: var(--muted);
+            padding: 2rem;
+            border-radius: var(--radius);
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            background: var(--secondary);
+        }
+
+        .stat-card h3 {
+            color: var(--muted-foreground);
+            font-size: 0.8125rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            color: var(--foreground);
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+
+        .content-section {
+            background: transparent;
+            padding: 0;
+            border: none;
+            display: none;
+            margin-bottom: 4rem;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-section h2 {
+            color: var(--foreground);
+            font-size: 1.75rem;
+            margin-bottom: 2rem;
+            padding-bottom: 0;
+            border-bottom: none;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 2rem;
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9375rem;
+        }
+
+        thead {
+            background: transparent;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th, td {
+            padding: 1rem 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-weight: 500;
+            color: var(--muted-foreground);
+            font-size: 0.8125rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--muted);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border: 1px solid var(--primary);
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.9375rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .btn:hover {
+            background: var(--foreground);
+            border-color: var(--foreground);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--success-foreground);
+            border-color: var(--success);
+        }
+
+        .btn-success:hover {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            background: var(--destructive);
+            color: var(--destructive-foreground);
+            border-color: var(--destructive);
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        .btn-warning {
+            background: transparent;
+            color: var(--foreground);
+            border-color: var(--border);
+        }
+
+        .btn-warning:hover {
+            background: var(--muted);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8125rem;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+        }
+
+        .badge-success {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+            border: none;
+        }
+
+        .badge-danger {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--destructive);
+            border: none;
+        }
+
+        .badge-warning {
+            background: rgba(243, 156, 18, 0.1);
+            color: #F39C12;
+            border: none;
+        }
+
+        .badge-info {
+            background: rgba(10, 133, 209, 0.1);
+            color: var(--accent);
+            border: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--muted-foreground);
+        }
+
+        .loading p {
+            margin-top: 1rem;
+            font-size: 0.9375rem;
+        }
+
+        .spinner {
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.25rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--destructive);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin: 0.625rem 0;
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            border-left: 4px solid var(--destructive);
+        }
+
+        .success {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--chart-4);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin: 0.625rem 0;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-left: 4px solid var(--chart-4);
+        }
+
+        .checkbox {
+            width: 1rem;
+            height: 1rem;
+            cursor: pointer;
+            border-radius: calc(var(--radius) - 4px);
+            border: 1px solid var(--input);
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .message-detail {
+            background: var(--muted);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-top: 0.625rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+
+        .truncate {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .auto-refresh-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            margin-left: auto;
+        }
+
+        .refresh-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            background: var(--chart-4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-box {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.9375rem;
+            width: 100%;
+            max-width: 320px;
+            background: var(--input);
+            color: var(--foreground);
+            transition: all 0.2s ease;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--background);
+        }
+
+        .search-box::placeholder {
+            color: var(--muted-foreground);
+            opacity: 0.6;
+        }
+
+        .theme-toggle {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.9375rem;
+            font-weight: 400;
+            color: var(--foreground);
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--muted);
+            border-color: var(--foreground);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.98);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+            gap: 1rem;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .icon {
+            width: 1.125rem;
+            height: 1.125rem;
+            display: inline-block;
+            vertical-align: middle;
+            stroke-width: 2;
+        }
+
+        .icon-lg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .stat-card .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin: 0;
+            opacity: 0.5;
+        }
+
+        /* Advanced Filters */
+        .filters-container {
+            background: var(--muted);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .filter-select,
+        .filter-input {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.9375rem;
+            background: var(--background);
+            color: var(--foreground);
+            transition: all 0.2s ease;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .filter-select:focus,
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .date-range-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        /* Flatpickr customization */
+        .flatpickr-input {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.9375rem;
+            background: var(--background);
+            color: var(--foreground);
+            font-family: 'Roboto', sans-serif;
+            cursor: pointer;
+        }
+
+        .flatpickr-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .pagination-info {
+            color: var(--muted-foreground);
+            font-size: 0.9375rem;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--foreground);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.9375rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--muted);
+            border-color: var(--foreground);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border-color: var(--primary);
+        }
+
+        .page-size-select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.9375rem;
+            background: var(--background);
+            color: var(--foreground);
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Responsive Design - Mobile First */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .header {
+                padding: 2rem 0 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .header h1 {
+                font-size: 1.875rem;
+            }
+
+            .header p {
+                font-size: 0.9375rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                margin-bottom: 2.5rem;
+            }
+
+            .stat-card {
+                padding: 1.5rem;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .tabs {
+                margin-bottom: 2rem;
+                overflow-x: scroll;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab {
+                padding: 0.875rem 1.25rem;
+                font-size: 0.875rem;
+            }
+
+            .content-section h2 {
+                font-size: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            table {
+                font-size: 0.875rem;
+            }
+            
+            th, td {
+                padding: 0.875rem 1rem;
+            }
+
+            .truncate {
+                max-width: 150px;
+            }
+
+            .actions-bar {
+                gap: 0.5rem;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .date-range-group {
+                grid-template-columns: 1fr;
+            }
+
+            .pagination-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .pagination-controls {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .modal-dialog {
+                max-width: 100%;         
+                max-height: 100vh;
+                border-radius: 0;
+            }
+
+            .modal-header {
+                padding: 1.5rem 1rem 1rem;
+            }
+
+            .modal-header h3 {
+                font-size: 1.25rem;
+            }
+
+            .modal-body {
+                padding: 1.5rem 1rem;
+            }
+
+            .modal-footer {
+                padding: 1rem;
+            }
+
+            .modal-footer .btn {
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .header p {
+                font-size: 0.875rem;
+            }
+
+            .stat-value {
+                font-size: 1.75rem;
+            }
+
+            .stat-card h3 {
+                font-size: 0.75rem;
+            }
+
+            .stat-card {
+                padding: 1.25rem;
+            }
+
+            .content-section h2 {
+                font-size: 1.25rem;
+            }
+
+            .tab {
+                padding: 0.75rem 1rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.875rem;
+            }
+
+            .btn {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .btn-sm {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8125rem;
+            }
+        }
+
+        /* MicroModal Styles */
+        .modal {
+            display: none;
+        }
+
+        .modal.is-open {
+            display: block;
+        }
+
+        .modal__overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal__container {
+            background: var(--card);
+            padding: 0;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            border-radius: var(--radius);
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .modal__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--card);
+            z-index: 1;
+        }
+
+        .modal__title {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--foreground);
+            letter-spacing: -0.02em;
+        }
+
+        .modal__close {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted-foreground);
+            transition: all 0.2s ease;
+            border-radius: var(--radius);
+        }
+
+        .modal__close:hover {
+            background: var(--muted);
+            color: var(--foreground);
+        }
+
+        .modal__content {
+            padding: 2rem;
+            color: var(--foreground);
+        }
+
+        .modal__footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            background: var(--muted);
+            position: sticky;
+            bottom: 0;
+            z-index: 1;
+        }
+
+        .modal__field {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal__field:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .modal__field-label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal__field-value {
+            font-size: 0.9375rem;
+            color: var(--foreground);
+            line-height: 1.75;
+            word-wrap: break-word;
+        }
+
+        .modal__field-value.code {
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            background: var(--muted);
+            padding: 1rem;
+            border-radius: var(--radius);
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+
+        /* MicroModal Animation */
+        @keyframes mmfadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes mmfadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        @keyframes mmslideIn {
+            from { transform: translateY(15%); }
+            to { transform: translateY(0); }
+        }
+
+        @keyframes mmslideOut {
+            from { transform: translateY(0); }
+            to { transform: translateY(15%); }
+        }
+
+        .micromodal-slide {
+            display: none;
+        }
+
+        .micromodal-slide.is-open {
+            display: block;
+        }
+
+        .micromodal-slide[aria-hidden="false"] .modal__overlay {
+            animation: mmfadeIn 0.3s cubic-bezier(0, 0, 0.2, 1);
+        }
+
+        .micromodal-slide[aria-hidden="false"] .modal__container {
+            animation: mmslideIn 0.3s cubic-bezier(0, 0, 0.2, 1);
+        }
+
+        .micromodal-slide[aria-hidden="true"] .modal__overlay {
+            animation: mmfadeOut 0.3s cubic-bezier(0, 0, 0.2, 1);
+        }
+
+        .micromodal-slide[aria-hidden="true"] .modal__container {
+            animation: mmslideOut 0.3s cubic-bezier(0, 0, 0.2, 1);
+        }
+
+        .micromodal-slide .modal__container,
+        .micromodal-slide .modal__overlay {
+            will-change: transform;
+        }
+
+        /* Responsive Modal */
+        @media (max-width: 768px) {
+            .modal__container {
+                width: 100%;
+                max-width: 100%;
+                border-radius: 0;
+                max-height: 100vh;
+            }
+
+            .modal__header {
+                padding: 1.5rem;
+            }
+
+            .modal__content {
+                padding: 1.5rem;
+            }
+
+            .modal__footer {
+                padding: 1rem 1.5rem;
+            }
+
+            .modal__title {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <div class="header-content">
+                    <h1>
+                        <svg class="icon icon-lg" style="width: 2rem; height: 2rem; margin-right: 0.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        {{DASHBOARD_TITLE}}
+                    </h1>
+                    <p>Real-time Wolverine monitoring • Last updated: <span id="lastUpdate">-</span></p>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                    <svg id="themeIcon" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    <span id="themeText">Dark</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <h3>Dead Letters</h3>
+                <div class="stat-value" id="totalDeadLetters">-</div>
+            </div>
+            <div class="stat-card">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <h3>Replayable</h3>
+                <div class="stat-value" id="replayableDeadLetters">-</div>
+            </div>
+            <div class="stat-card">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                <h3>Incoming Envelopes</h3>
+                <div class="stat-value" id="totalIncomingEnvelopes">-</div>
+            </div>
+            <div class="stat-card">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                </svg>
+                <h3>Active Nodes</h3>
+                <div class="stat-value" id="activeNodes">-</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('deadLetters')">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Dead Letters
+            </button>
+            <button class="tab" onclick="switchTab('incomingEnvelopes')">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                Incoming Envelopes
+            </button>
+            <button class="tab" onclick="switchTab('nodes')">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                </svg>
+                Nodes
+            </button>
+            <button class="tab" onclick="switchTab('nodeAssignments')">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Node Assignments
+            </button>
+        </div>
+
+        <!-- Dead Letters Section -->
+        <div id="deadLetters" class="content-section active">
+            <h2>
+                <svg class="icon icon-lg" style="margin-right: 0.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Dead Letters Management
+            </h2>
+
+            <!-- Advanced Filters -->
+            <div class="filters-container">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Message Type</label>
+                        <select id="filterMessageType" class="filter-select">
+                            <option value="">All Message Types</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Exception Type</label>
+                        <select id="filterExceptionType" class="filter-select">
+                            <option value="">All Exception Types</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Sent At Date Range</label>
+                    <div class="date-range-group">
+                        <input type="text" id="filterDateStart" class="flatpickr-input" placeholder="Start Date" readonly>
+                        <input type="text" id="filterDateEnd" class="flatpickr-input" placeholder="End Date" readonly>
+                    </div>
+                </div>
+                <div class="filters-grid" style="margin-top: 15px">
+                    <div class="filter-group">
+                        <label class="filter-label">Content Search</label>
+                        <input type="text" id="filterBodySearch" class="filter-input" placeholder="Search in body...">
+                    </div>
+                </div>
+
+                <div class="filter-actions" style="margin-top: 1rem;">
+                    <button class="btn" onclick="applyFilters()">
+                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                        Apply Filters
+                    </button>
+                    <button class="btn btn-warning" onclick="clearFilters()">
+                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+
+            <div class="actions-bar">
+                <button class="btn btn-success" onclick="replaySelected()">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Replay Selected
+                </button>
+                <!--<button class="btn btn-warning" onclick="unreplaySelected()">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Unreplay Selected
+                </button>-->
+                <button class="btn" onclick="loadDeadLetters()">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+            <div id="deadLettersContent">
+                <div class="loading"><div class="spinner"></div><p>Loading dead letters...</p></div>
+            </div>
+        </div>
+
+        <!-- Incoming Envelopes Section -->
+        <div id="incomingEnvelopes" class="content-section">
+            <h2>
+                <svg class="icon icon-lg" style="margin-right: 0.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                Incoming Envelopes Management
+            </h2>
+            
+            <!-- Advanced Filters -->
+            <div class="filters-container">
+                <h3 style="font-size: 1rem; font-weight: 500; margin-bottom: 1rem; color: var(--foreground);">Advanced Filters</h3>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label" for="envelopeFilterMessageType">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                            </svg>
+                            Message Type
+                        </label>
+                        <select id="envelopeFilterMessageType" class="filter-select" onchange="envelopeFilters.messageType = this.value">
+                            <option value="">All Types</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="envelopeFilterStatus">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Status
+                        </label>
+                        <select id="envelopeFilterStatus" class="filter-select" onchange="envelopeFilters.status = this.value">
+                            <option value="">All Statuses</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="envelopeFilterDateStart">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Execution Time (Start)
+                        </label>
+                        <input type="text" id="envelopeFilterDateStart" class="filter-input flatpickr-input" placeholder="Select start date..." readonly>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="envelopeFilterDateEnd">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Execution Time (End)
+                        </label>
+                        <input type="text" id="envelopeFilterDateEnd" class="filter-input flatpickr-input" placeholder="Select end date..." readonly>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="envelopeFilterBodySearch">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            Body Search
+                        </label>
+                        <input type="text" id="envelopeFilterBodySearch" class="filter-input" placeholder="Search in body..." oninput="envelopeFilters.bodySearch = this.value">
+                    </div>
+                </div>
+                
+                <div class="filter-actions">
+                    <button class="btn" onclick="applyEnvelopeFilters()">
+                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                        Apply Filters
+                    </button>
+                    <button class="btn" onclick="clearEnvelopeFilters()" style="background: var(--secondary); color: var(--secondary-foreground); border-color: var(--border);">
+                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+            
+            <div id="incomingEnvelopesContent">
+                <div class="loading"><div class="spinner"></div><p>Loading incoming envelopes...</p></div>
+            </div>
+            
+            <!-- Pagination -->
+            <div id="envelopePaginationContainer" class="pagination-container" style="display: none;">
+                <div class="pagination-info">
+                    <span id="envelopePaginationInfo"></span>
+                    <select id="envelopePageSize" class="page-size-select" onchange="changeEnvelopePageSize(parseInt(this.value))">
+                        <option value="5">5 per page</option>
+                        <option value="10" selected>10 per page</option>
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                    </select>
+                </div>
+                <div class="pagination-controls" id="envelopePaginationControls"></div>
+            </div>
+        </div>
+
+        <!-- Nodes Section -->
+        <div id="nodes" class="content-section">
+            <h2>
+                <svg class="icon icon-lg" style="margin-right: 0.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                </svg>
+                Wolverine Nodes
+            </h2>
+            <div class="actions-bar">
+                <button class="btn" onclick="loadNodes()">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+            <div id="nodesContent">
+                <div class="loading"><div class="spinner"></div><p>Loading nodes...</p></div>
+            </div>
+        </div>
+
+        <!-- Node Assignments Section -->
+        <div id="nodeAssignments" class="content-section">
+            <h2>
+                <svg class="icon icon-lg" style="margin-right: 0.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Node Assignments
+            </h2>
+            <div class="actions-bar">
+                <button class="btn" onclick="loadNodeAssignments()">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+            <div id="nodeAssignmentsContent">
+                <div class="loading"><div class="spinner"></div><p>Loading node assignments...</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MicroModal Dialog -->
+    <div class="modal micromodal-slide" id="detailModal" aria-hidden="true">
+        <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+            <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="detailModal-title">
+                <header class="modal__header">
+                    <h2 class="modal__title" id="detailModal-title">Dead Letter Details</h2>
+                    <button class="modal__close" aria-label="Close modal" data-micromodal-close>
+                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 1.5rem; height: 1.5rem;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </header>
+                <div class="modal__content" id="modalBody">
+                    <!-- Content will be injected here -->
+                </div>
+                <footer class="modal__footer">
+                    <!--<button class="btn" onclick="copyBodyContent(event)">
+                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Copy Body Content
+                    </button>-->
+                    <button class="btn" data-micromodal-close style="background: var(--secondary); color: var(--secondary-foreground); border-color: var(--border);">
+                        Close
+                    </button>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
+    <script>
+        const config = {
+            autoRefresh: {{AUTO_REFRESH}},
+            refreshInterval: {{REFRESH_INTERVAL}},
+            basePath: '{{BASE_PATH}}'
+        };
+
+        let currentTab = 'deadLetters';
+        let deadLettersData = [];
+        let incomingEnvelopesData = [];
+        
+        // Pagination state
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalPages = 1;
+        let filteredData = [];
+        
+        // Filter state for Dead Letters
+        let filters = {
+            messageType: '',
+            exceptionType: '',
+            bodySearch: '',
+            dateStart: null,
+            dateEnd: null
+        };
+        
+        // Pagination state for Incoming Envelopes
+        let envelopeCurrentPage = 1;
+        let envelopePageSize = 10;
+        let envelopeTotalPages = 1;
+        
+        // Filter state for Incoming Envelopes
+        let envelopeFilters = {
+            messageType: '',
+            status: '',
+            bodySearch: '',
+            dateStart: null,
+            dateEnd: null
+        };
+
+        // Initialize Flatpickr
+        let dateStartPicker;
+        let dateEndPicker;
+        let envelopeDateStartPicker;
+        let envelopeDateEndPicker;
+
+        function initializeDatePickers() {
+            dateStartPicker = flatpickr("#filterDateStart", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true,
+                onChange: function(selectedDates, dateStr, instance) {
+                    filters.dateStart = selectedDates[0] || null;
+                }
+            });
+
+            dateEndPicker = flatpickr("#filterDateEnd", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true,
+                onChange: function(selectedDates, dateStr, instance) {
+                    filters.dateEnd = selectedDates[0] || null;
+                }
+            });
+            
+            envelopeDateStartPicker = flatpickr("#envelopeFilterDateStart", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true,
+                onChange: function(selectedDates, dateStr, instance) {
+                    envelopeFilters.dateStart = selectedDates[0] || null;
+                }
+            });
+            
+            envelopeDateEndPicker = flatpickr("#envelopeFilterDateEnd", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true,
+                onChange: function(selectedDates, dateStr, instance) {
+                    envelopeFilters.dateEnd = selectedDates[0] || null;
+                }
+            });
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content sections
+            document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            
+            // Load data for the tab
+            switch(tabName) {
+                case 'deadLetters':
+                    loadDeadLetters();
+                    break;
+                case 'incomingEnvelopes':
+                    loadIncomingEnvelopes();
+                    break;
+                case 'nodes':
+                    loadNodes();
+                    break;
+                case 'nodeAssignments':
+                    loadNodeAssignments();
+                    break;
+            }
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/wolverine/stats');
+                const data = await response.json();
+                
+                document.getElementById('totalDeadLetters').textContent = data.totalDeadLetters || 0;
+                document.getElementById('replayableDeadLetters').textContent = data.replayableDeadLetters || 0;
+                document.getElementById('totalIncomingEnvelopes').textContent = data.totalIncomingEnvelopes || 0;
+                document.getElementById('activeNodes').textContent = data.activeNodes || 0;
+                
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load Dead Letters with server-side filtering and pagination
+        async function loadDeadLetters() {
+            const content = document.getElementById('deadLettersContent');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
+            
+            try {
+                // Build query parameters
+                const params = new URLSearchParams();
+                params.append('page', currentPage);
+                params.append('pageSize', pageSize);
+                
+                if (filters.messageType) params.append('messageType', filters.messageType);
+                if (filters.exceptionType) params.append('exceptionType', filters.exceptionType);
+                if (filters.bodySearch) params.append('bodySearch', filters.bodySearch);
+                if (filters.dateStart) params.append('startDate', filters.dateStart.toISOString());
+                if (filters.dateEnd) params.append('endDate', filters.dateEnd.toISOString());
+                
+                const response = await fetch(`/api/wolverine/dead-letters?${params.toString()}`);
+                const result = await response.json();
+                
+                deadLettersData = result.data || [];
+                totalPages = result.totalPages || 1;
+                
+                // Populate filter dropdowns with available options from API
+                if (result.filters) {
+                    populateFilterDropdowns(result.filters.messageTypes, result.filters.exceptionTypes);
+                }
+                
+                // Display data and pagination
+                displayDeadLetters(deadLettersData);
+                renderPagination(result.count);
+                
+                loadStats();
+            } catch (error) {
+                content.innerHTML = `<div class="error">Error loading dead letters: ${error.message}</div>`;
+            }
+        }
+
+        function populateFilterDropdowns(messageTypes = [], exceptionTypes = []) {
+            const messageTypeSelect = document.getElementById('filterMessageType');
+            messageTypeSelect.innerHTML = '<option value="">All Message Types</option>' + 
+                messageTypes.map(type => `<option value="${type}" ${filters.messageType === type ? 'selected' : ''}>${type}</option>`).join('');
+
+            const exceptionTypeSelect = document.getElementById('filterExceptionType');
+            exceptionTypeSelect.innerHTML = '<option value="">All Exception Types</option>' + 
+                exceptionTypes.map(type => `<option value="${type}" ${filters.exceptionType === type ? 'selected' : ''}>${type}</option>`).join('');
+        }
+
+        function applyFilters() {
+            // Get filter values
+            filters.messageType = document.getElementById('filterMessageType').value;
+            filters.exceptionType = document.getElementById('filterExceptionType').value;
+            filters.bodySearch = document.getElementById('filterBodySearch').value;
+            
+            // Reset to first page
+            currentPage = 1;
+            
+            // Reload data from server with new filters
+            loadDeadLetters();
+        }
+
+        function clearFilters() {
+            // Reset filter values
+            document.getElementById('filterMessageType').value = '';
+            document.getElementById('filterExceptionType').value = '';
+            document.getElementById('filterBodySearch').value = '';
+            dateStartPicker.clear();
+            dateEndPicker.clear();
+            
+            filters = {
+                messageType: '',
+                exceptionType: '',
+                bodySearch: '',
+                dateStart: null,
+                dateEnd: null
+            };
+            
+            // Reset to first page
+            currentPage = 1;
+            
+            // Reload data from server without filters
+            loadDeadLetters();
+        }
+
+
+
+        function renderPagination(totalCount) {
+            const content = document.getElementById('deadLettersContent');
+            const tableContainer = content.querySelector('.table-container');
+            
+            if (!tableContainer) return;
+            
+            // Remove existing pagination
+            const existingPagination = content.querySelector('.pagination-container');
+            if (existingPagination) {
+                existingPagination.remove();
+            }
+            
+            // Create pagination HTML
+            const paginationHTML = `
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        Showing ${Math.min((currentPage - 1) * pageSize + 1, totalCount)} to ${Math.min(currentPage * pageSize, totalCount)} of ${totalCount} entries
+                    </div>
+                    <div class="pagination-controls">
+                        <label style="margin-right: 0.5rem; color: var(--muted-foreground); font-size: 0.9375rem;">Rows per page:</label>
+                        <select class="page-size-select" onchange="changePageSize(this.value)">
+                            <option value="5" ${pageSize === 5 ? 'selected' : ''}>5</option>
+                            <option value="10" ${pageSize === 10 ? 'selected' : ''}>10</option>
+                            <option value="25" ${pageSize === 25 ? 'selected' : ''}>25</option>
+                            <option value="50" ${pageSize === 50 ? 'selected' : ''}>50</option>
+                        </select>
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="pagination-btn" onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}>
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button class="pagination-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        ${renderPageNumbers()}
+                        <button class="pagination-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''}>
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                        <button class="pagination-btn" onclick="goToPage(${totalPages})" ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''}>
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            content.insertAdjacentHTML('beforeend', paginationHTML);
+        }
+
+        function renderPageNumbers() {
+            let pages = [];
+            const maxVisible = 5;
+            
+            if (totalPages <= maxVisible) {
+                for (let i = 1; i <= totalPages; i++) {
+                    pages.push(i);
+                }
+            } else {
+                if (currentPage <= 3) {
+                    pages = [1, 2, 3, 4, '...', totalPages];
+                } else if (currentPage >= totalPages - 2) {
+                    pages = [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+                }
+            }
+            
+            return pages.map(page => {
+                if (page === '...') {
+                    return '<span style="padding: 0 0.5rem; color: var(--muted-foreground);">...</span>';
+                }
+                return `<button class="pagination-btn ${page === currentPage ? 'active' : ''}" onclick="goToPage(${page})">${page}</button>`;
+            }).join('');
+        }
+
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            loadDeadLetters();
+        }
+
+        function changePageSize(newSize) {
+            pageSize = parseInt(newSize);
+            currentPage = 1;
+            loadDeadLetters();
+        }
+
+        function displayDeadLetters(data) {
+            const content = document.getElementById('deadLettersContent');
+            
+            if (data.length === 0) {
+                content.innerHTML = '<p style="text-align:center; color:#999; padding:40px;">No dead letters found</p>';
+                return;
+            }
+            
+            let html = '<div class="table-container"><table><thead><tr>';
+            html += '<th><input type="checkbox" class="checkbox" onchange="toggleAllDeadLetters(this)"></th>';
+            html += '<th>Message Type</th>';
+            html += '<th>Exception</th>';
+            html += '<th>Received At</th>';
+            html += '<th>Replayable</th>';
+            html += '<th>Sent At</th>';
+            html += '<th>Actions</th>';
+            html += '</tr></thead><tbody>';
+            
+            data.forEach((item, index) => {
+                html += `<tr>
+                    <td><input type="checkbox" class="checkbox dead-letter-checkbox" data-id="${item.id}" data-received="${item.receivedAt}"></td>
+                    <td class="truncate" title="${item.messageType}">${item.messageType}</td>
+                    <td class="truncate" title="${item.exceptionType || 'N/A'}">${item.exceptionType || 'N/A'}</td>
+                    <td>${item.receivedAt || 'N/A'}</td>
+                    <td>${item.replayable ? '<span class="badge badge-success">Yes</span>' : '<span class="badge badge-danger">No</span>'}</td>
+                    <td>${new Date(item.sentAt).toLocaleString() || 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-sm" onclick='viewDetails(${index})'>
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            View
+                        </button>
+                    </td>
+                </tr>`;
+            });
+
+            //<button class="btn btn-sm btn-danger" onclick="deleteDeadLetter('${item.id}', '${item.receivedAt}')">
+            //    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            //        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            //    </svg>
+            //    Delete
+            //</button>
+            
+            html += '</tbody></table></div>';
+            content.innerHTML = html;
+        }
+
+        function toggleAllDeadLetters(checkbox) {
+            document.querySelectorAll('.dead-letter-checkbox').forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+        }
+
+        async function replaySelected() {
+            const selected = getSelectedDeadLetters();
+            if (selected.length === 0) {
+                alert('Please select at least one dead letter');
+                return;
+            }
+            
+            if (!confirm(`Replay ${selected.length} dead letter(s)?`)) return;
+            
+            try {
+                const response = await fetch('/api/wolverine/dead-letters/replay-multiple', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        deadLetters: selected,
+                        replayable: true
+                    })
+                });
+                
+                const result = await response.json();
+                alert(result.message);
+                loadDeadLetters();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function unreplaySelected() {
+            const selected = getSelectedDeadLetters();
+            if (selected.length === 0) {
+                alert('Please select at least one dead letter');
+                return;
+            }
+            
+            if (!confirm(`Set ${selected.length} dead letter(s) as non-replayable?`)) return;
+            
+            try {
+                const response = await fetch('/api/wolverine/dead-letters/replay-multiple', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        deadLetters: selected,
+                        replayable: false
+                    })
+                });
+                
+                const result = await response.json();
+                alert(result.message);
+                loadDeadLetters();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function getSelectedDeadLetters() {
+            const checkboxes = document.querySelectorAll('.dead-letter-checkbox:checked');
+            return Array.from(checkboxes).map(cb => ({
+                id: cb.dataset.id,
+                receivedAt: cb.dataset.received
+            }));
+        }
+
+        async function deleteDeadLetter(id, receivedAt) {
+            if (!confirm('Delete this dead letter?')) return;
+            
+            try {
+                const response = await fetch(`/api/wolverine/dead-letters/${id}?receivedAt=${encodeURIComponent(receivedAt)}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                alert(result.message);
+                loadDeadLetters();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        let currentBodyContent = '';
+
+        function viewDetails(index) {
+            // Get item from deadLettersData array
+            const item = deadLettersData[index];
+            if (!item) {
+                alert('Item not found');
+                return;
+            }
+            
+            // Use jsonBody from server (already extracted and cleaned)
+            let bodyText = 'No body data';
+            if (item.jsonBody) {
+                try {
+                    // Try to parse and pretty-print JSON
+                    const parsed = JSON.parse(item.jsonBody);
+                    bodyText = JSON.stringify(parsed, null, 2);
+                } catch (e) {
+                    // If not valid JSON, use as-is
+                    bodyText = item.jsonBody;
+                }
+            } else if (item.body) {
+                // Fallback: try to decode from base64 body
+                try {
+                    bodyText = atob(item.body);
+                } catch (e) {
+                    bodyText = 'Error decoding body data';
+                }
+            }
+            
+            currentBodyContent = bodyText;
+            
+            // Build modal content
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="modal__field">
+                    <span class="modal__field-label">ID</span>
+                    <div class="modal__field-value">${item.id}</div>
+                </div>
+                
+                <div class="modal__field">
+                    <span class="modal__field-label">Message Type</span>
+                    <div class="modal__field-value">${item.messageType || 'N/A'}</div>
+                </div>
+                
+                <div class="modal__field">
+                    <span class="modal__field-label">Received At</span>
+                    <div class="modal__field-value">${item.receivedAt || 'N/A'}</div>
+                </div>
+                
+                <div class="modal__field">
+                    <span class="modal__field-label">Sent At</span>
+                    <div class="modal__field-value">${item.sentAt ? new Date(item.sentAt).toLocaleString() : 'N/A'}</div>
+                </div>
+                
+                <div class="modal__field">
+                    <span class="modal__field-label">Execution Time</span>
+                    <div class="modal__field-value">${item.executionTime ? new Date(item.executionTime).toLocaleString() : 'N/A'}</div>
+                </div>
+                
+                <div class="modal__field">
+                    <span class="modal__field-label">Source</span>
+                    <div class="modal__field-value">${item.source || 'N/A'}</div>
+                </div>
+                
+                <div class="modal__field">
+                    <span class="modal__field-label">Exception Type</span>
+                    <div class="modal__field-value">${item.exceptionType || 'N/A'}</div>
+                </div>
+                
+                <div class="modal__field">
+                    <span class="modal__field-label">Exception Message</span>
+                    <div class="modal__field-value">${item.exceptionMessage || 'N/A'}</div>
+                </div>
+                
+                <div class="modal__field">
+                    <span class="modal__field-label">Replayable</span>
+                    <div class="modal__field-value">${item.replayable ? '<span class="badge badge-success">Yes</span>' : '<span class="badge badge-danger">No</span>'}</div>
+                </div>
+                
+                <div class="modal__field">
+                    <span class="modal__field-label">Body Content (JSON)</span>
+                    <div class="modal__field-value" style="font-family: 'Courier New', monospace; white-space: pre; word-break: break-word; background: var(--muted); padding: 1rem; border-radius: var(--radius); max-height: 400px; overflow-y: auto; border: 1px solid var(--border); font-size: 0.875rem; line-height: 1.5;">${escapeHtml(bodyText)}</div>
+                </div>
+            `;
+            
+            // Show modal using MicroModal
+            MicroModal.show('detailModal', {
+                onClose: function() {
+                    currentBodyContent = '';
+                },
+                awaitCloseAnimation: true,
+                disableScroll: true
+            });
+        }
+        
+        function copyBodyContent(event) {
+
+            console.log('DATA', event)
+            if (!currentBodyContent) {
+                alert('No content to copy');
+                return;
+            }
+            
+            navigator.clipboard.writeText(currentBodyContent).then(() => {
+                const btn = event.target.closest('button');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Copied!';
+                btn.style.background = 'var(--success)';
+                btn.style.color = 'var(--success-foreground)';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy: ' + err.message);
+            });
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load Incoming Envelopes with server-side filtering and pagination
+        async function loadIncomingEnvelopes() {
+            const content = document.getElementById('incomingEnvelopesContent');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
+            
+            try {
+                // Build query parameters
+                const params = new URLSearchParams({
+                    page: envelopeCurrentPage,
+                    pageSize: envelopePageSize
+                });
+                
+                if (envelopeFilters.messageType) params.append('messageType', envelopeFilters.messageType);
+                if (envelopeFilters.status) params.append('status', envelopeFilters.status);
+                if (envelopeFilters.bodySearch) params.append('bodySearch', envelopeFilters.bodySearch);
+                if (envelopeFilters.dateStart) params.append('startDate', envelopeFilters.dateStart.toISOString());
+                if (envelopeFilters.dateEnd) params.append('endDate', envelopeFilters.dateEnd.toISOString());
+                
+                const response = await fetch(`/api/wolverine/incoming-envelopes?${params}`);
+                const result = await response.json();
+                
+                incomingEnvelopesData = result.data || [];
+                envelopeTotalPages = result.totalPages || 1;
+                
+                // Populate filter dropdowns
+                populateEnvelopeFilterDropdowns(result.filters?.messageTypes || [], result.filters?.statuses || []);
+                
+                displayIncomingEnvelopes(incomingEnvelopesData);
+                renderEnvelopePagination(result.count || 0);
+            } catch (error) {
+                content.innerHTML = `<div class="error">Error loading incoming envelopes: ${error.message}</div>`;
+            }
+        }
+        
+        function populateEnvelopeFilterDropdowns(messageTypes = [], statuses = []) {
+            const messageTypeSelect = document.getElementById('envelopeFilterMessageType');
+            const statusSelect = document.getElementById('envelopeFilterStatus');
+            
+            const currentMessageType = messageTypeSelect.value;
+            const currentStatus = statusSelect.value;
+            
+            messageTypeSelect.innerHTML = '<option value="">All Types</option>';
+            messageTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                if (type === currentMessageType) option.selected = true;
+                messageTypeSelect.appendChild(option);
+            });
+            
+            statusSelect.innerHTML = '<option value="">All Statuses</option>';
+            statuses.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                if (status === currentStatus) option.selected = true;
+                statusSelect.appendChild(option);
+            });
+        }
+        
+        function applyEnvelopeFilters() {
+            envelopeCurrentPage = 1;
+            loadIncomingEnvelopes();
+        }
+        
+        function clearEnvelopeFilters() {
+            envelopeFilters = {
+                messageType: '',
+                status: '',
+                bodySearch: '',
+                dateStart: null,
+                dateEnd: null
+            };
+            
+            document.getElementById('envelopeFilterMessageType').value = '';
+            document.getElementById('envelopeFilterStatus').value = '';
+            document.getElementById('envelopeFilterBodySearch').value = '';
+            
+            if (envelopeDateStartPicker) envelopeDateStartPicker.clear();
+            if (envelopeDateEndPicker) envelopeDateEndPicker.clear();
+            
+            envelopeCurrentPage = 1;
+            loadIncomingEnvelopes();
+        }
+
+        function displayIncomingEnvelopes(data) {
+            const content = document.getElementById('incomingEnvelopesContent');
+            
+            if (data.length === 0) {
+                content.innerHTML = '<p style="text-align:center; color:var(--muted-foreground); padding:40px;">No incoming envelopes found</p>';
+                return;
+            }
+            
+            let html = '<div class="table-container"><table><thead><tr>';
+            html += '<th>Message Type</th><th>Status</th><th>Attempts</th><th>Owner ID</th><th>Execution Time</th><th>Received At</th>';
+            html += '</tr></thead><tbody>';
+            
+            data.forEach(item => {
+                const statusBadge = item.status === 'Scheduled' ? 'badge-warning' : 
+                                   item.status === 'Incoming' ? 'badge-info' : 'badge-success';
+                html += `<tr>
+                    <td class="truncate" title="${item.messageType}">${item.messageType}</td>
+                    <td><span class="badge ${statusBadge}">${item.status}</span></td>
+                    <td>${item.attempts}</td>
+                    <td>${item.ownerId}</td>
+                    <td>${item.executionTime ? new Date(item.executionTime).toLocaleString() : 'N/A'}</td>
+                    <td>${new Date(item.receivedAt).toLocaleString()}</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table></div>';
+            content.innerHTML = html;
+        }
+        
+        function renderEnvelopePagination(totalCount) {
+            const container = document.getElementById('envelopePaginationContainer');
+            const info = document.getElementById('envelopePaginationInfo');
+            const controls = document.getElementById('envelopePaginationControls');
+            
+            if (totalCount === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'flex';
+            
+            const start = (envelopeCurrentPage - 1) * envelopePageSize + 1;
+            const end = Math.min(envelopeCurrentPage * envelopePageSize, totalCount);
+            info.textContent = `Showing ${start}-${end} of ${totalCount} envelopes`;
+            
+            renderEnvelopePageNumbers();
+        }
+        
+        function renderEnvelopePageNumbers() {
+            const controls = document.getElementById('envelopePaginationControls');
+            let html = '';
+            
+            html += `<button class="pagination-btn" onclick="goToEnvelopePage(${envelopeCurrentPage - 1})" ${envelopeCurrentPage === 1 ? 'disabled' : ''}>Previous</button>`;
+            
+            const maxButtons = 5;
+            let startPage = Math.max(1, envelopeCurrentPage - Math.floor(maxButtons / 2));
+            let endPage = Math.min(envelopeTotalPages, startPage + maxButtons - 1);
+            
+            if (endPage - startPage < maxButtons - 1) {
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+            
+            if (startPage > 1) {
+                html += `<button class="pagination-btn" onclick="goToEnvelopePage(1)">1</button>`;
+                if (startPage > 2) html += `<span style="padding: 0 0.5rem;">...</span>`;
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="pagination-btn ${i === envelopeCurrentPage ? 'active' : ''}" onclick="goToEnvelopePage(${i})">${i}</button>`;
+            }
+            
+            if (endPage < envelopeTotalPages) {
+                if (endPage < envelopeTotalPages - 1) html += `<span style="padding: 0 0.5rem;">...</span>`;
+                html += `<button class="pagination-btn" onclick="goToEnvelopePage(${envelopeTotalPages})">${envelopeTotalPages}</button>`;
+            }
+            
+            html += `<button class="pagination-btn" onclick="goToEnvelopePage(${envelopeCurrentPage + 1})" ${envelopeCurrentPage === envelopeTotalPages ? 'disabled' : ''}>Next</button>`;
+            
+            controls.innerHTML = html;
+        }
+        
+        function goToEnvelopePage(page) {
+            if (page >= 1 && page <= envelopeTotalPages) {
+                envelopeCurrentPage = page;
+                loadIncomingEnvelopes();
+            }
+        }
+        
+        function changeEnvelopePageSize(newSize) {
+            envelopePageSize = newSize;
+            envelopeCurrentPage = 1;
+            loadIncomingEnvelopes();
+        }
+
+        // Load Nodes
+        async function loadNodes() {
+            const content = document.getElementById('nodesContent');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
+            
+            try {
+                const response = await fetch('/api/wolverine/nodes');
+                const result = await response.json();
+                const data = result.data || [];
+                
+                if (data.length === 0) {
+                    content.innerHTML = '<p style="text-align:center; color:#999; padding:40px;">No nodes found</p>';
+                    return;
+                }
+                
+                let html = '<div class="table-container"><table><thead><tr>';
+                html += '<th>Node #</th><th>Description</th><th>URI</th><th>Started</th><th>Health Check</th><th>Status</th>';
+                html += '</tr></thead><tbody>';
+                
+                data.forEach(item => {
+                    const isHealthy = new Date(item.healthCheck) > new Date(Date.now() - 5 * 60 * 1000);
+                    html += `<tr>
+                        <td>${item.nodeNumber}</td>
+                        <td>${item.description}</td>
+                        <td>${item.uri}</td>
+                        <td>${new Date(item.started).toLocaleString()}</td>
+                        <td>${new Date(item.healthCheck).toLocaleString()}</td>
+                        <td>${isHealthy ? '<span class="badge badge-success">Healthy</span>' : '<span class="badge badge-danger">Unhealthy</span>'}</td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table></div>';
+                content.innerHTML = html;
+            } catch (error) {
+                content.innerHTML = `<div class="error">Error loading nodes: ${error.message}</div>`;
+            }
+        }
+
+        // Load Node Assignments
+        async function loadNodeAssignments() {
+            const content = document.getElementById('nodeAssignmentsContent');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
+            
+            try {
+                const response = await fetch('/api/wolverine/node-assignments');
+                const result = await response.json();
+                const data = result.data || [];
+                
+                if (data.length === 0) {
+                    content.innerHTML = '<p style="text-align:center; color:#999; padding:40px;">No node assignments found</p>';
+                    return;
+                }
+                
+                let html = '<div class="table-container"><table><thead><tr>';
+                html += '<th>Assignment ID</th><th>Node ID</th><th>Started</th>';
+                html += '</tr></thead><tbody>';
+                
+                data.forEach(item => {
+                    html += `<tr>
+                        <td>${item.id}</td>
+                        <td>${item.nodeId || 'N/A'}</td>
+                        <td>${new Date(item.started).toLocaleString()}</td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table></div>';
+                content.innerHTML = html;
+            } catch (error) {
+                content.innerHTML = `<div class="error">Error loading node assignments: ${error.message}</div>`;
+            }
+        }
+
+        // Auto refresh
+        function startAutoRefresh() {
+            if (config.autoRefresh && config.refreshInterval > 0) {
+                setInterval(() => {
+                    loadStats();
+                    switch(currentTab) {
+                        case 'deadLetters':
+                            loadDeadLetters();
+                            break;
+                        case 'incomingEnvelopes':
+                            loadIncomingEnvelopes();
+                            break;
+                        case 'nodes':
+                            loadNodes();
+                            break;
+                        case 'nodeAssignments':
+                            loadNodeAssignments();
+                            break;
+                    }
+                }, config.refreshInterval);
+            }
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const isDark = body.classList.contains('dark');
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (isDark) {
+                body.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />';
+                document.getElementById('themeText').textContent = 'Dark';
+            } else {
+                body.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />';
+                document.getElementById('themeText').textContent = 'Light';
+            }
+        }
+
+        // Load theme preference
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.body.classList.add('dark');
+                themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />';
+                document.getElementById('themeText').textContent = 'Light';
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            loadTheme();
+            loadStats();
+            initializeDatePickers();
+            loadDeadLetters();
+            startAutoRefresh();
+            
+            // Initialize MicroModal
+            MicroModal.init({
+                onShow: function() {
+                    console.log('Modal opened');
+                },
+                onClose: function() {
+                    console.log('Modal closed');
+                },
+                openTrigger: 'data-micromodal-trigger',
+                closeTrigger: 'data-micromodal-close',
+                openClass: 'is-open',
+                disableScroll: true,
+                disableFocus: false,
+                awaitOpenAnimation: true,
+                awaitCloseAnimation: true,
+                debugMode: false
+            });
+        });
+    </script>
+</body>
+</html>
