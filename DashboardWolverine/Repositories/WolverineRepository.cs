@@ -52,7 +52,7 @@ public class WolverineRepository
 
         if (!string.IsNullOrEmpty(bodySearch))
         {
-            whereConditions.Add($"CAST(body AS TEXT) ILIKE @p{paramIndex}");
+            whereConditions.Add($"encode(body, 'escape') ILIKE @p{paramIndex}");
             parameters.Add(new NpgsqlParameter($"p{paramIndex}", $"%{bodySearch}%"));
             paramIndex++;
         }
@@ -309,7 +309,7 @@ public class WolverineRepository
 
         if (!string.IsNullOrEmpty(bodySearch))
         {
-            whereConditions.Add($"CAST(body AS TEXT) ILIKE @p{paramIndex}");
+            whereConditions.Add($"encode(body, 'escape') ILIKE @p{paramIndex}");
             parameters.Add(new NpgsqlParameter($"p{paramIndex}", $"%{bodySearch}%"));
             paramIndex++;
         }
