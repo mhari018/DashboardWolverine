@@ -7,10 +7,19 @@ namespace DashboardWolverine.Repositories;
 public class WolverineRepository
 {
     private readonly string _connectionString;
+    private readonly string? _schema;
 
-    public WolverineRepository(string connectionString)
+    public WolverineRepository(string connectionString, string? schema = null)
     {
         _connectionString = connectionString;
+        _schema = schema;
+    }
+
+    private string GetTableName(string tableName)
+    {
+        return string.IsNullOrWhiteSpace(_schema) 
+            ? tableName 
+            : $"{_schema}.{tableName}";
     }
 
     #region Dead Letters CRUD
@@ -74,7 +83,7 @@ public class WolverineRepository
         var whereClause = whereConditions.Count > 0 ? "WHERE " + string.Join(" AND ", whereConditions) : "";
 
         // Get total count
-        var countQuery = $"SELECT COUNT(*) FROM wolverine_dead_letters {whereClause}";
+        var countQuery = $"SELECT COUNT(*) FROM {GetTableName("wolverine_dead_letters")} {whereClause}";
         int totalCount;
         await using (var countCommand = new NpgsqlCommand(countQuery, connection))
         {
@@ -95,7 +104,7 @@ public class WolverineRepository
                        encode(body, 'escape')
                        FROM position('{{' IN encode(body, 'escape'))
                    ) AS json_body
-            FROM wolverine_dead_letters
+            FROM {GetTableName("wolverine_dead_letters")}
             {whereClause}
             ORDER BY execution_time DESC NULLS LAST
             LIMIT @limit OFFSET @offset";
@@ -130,7 +139,7 @@ public class WolverineRepository
         }
 
         // Get available filter options
-        var messageTypesQuery = "SELECT DISTINCT message_type FROM wolverine_dead_letters WHERE message_type IS NOT NULL ORDER BY message_type";
+        var messageTypesQuery = $"SELECT DISTINCT message_type FROM {GetTableName("wolverine_dead_letters")} WHERE message_type IS NOT NULL ORDER BY message_type";
         await using (var cmd = new NpgsqlCommand(messageTypesQuery, connection))
         {
             await using var reader = await cmd.ExecuteReaderAsync();
@@ -140,7 +149,7 @@ public class WolverineRepository
             }
         }
 
-        var exceptionTypesQuery = "SELECT DISTINCT exception_type FROM wolverine_dead_letters WHERE exception_type IS NOT NULL ORDER BY exception_type";
+        var exceptionTypesQuery = $"SELECT DISTINCT exception_type FROM {GetTableName("wolverine_dead_letters")} WHERE exception_type IS NOT NULL ORDER BY exception_type";
         await using (var cmd = new NpgsqlCommand(exceptionTypesQuery, connection))
         {
             await using var reader = await cmd.ExecuteReaderAsync();
@@ -164,15 +173,15 @@ public class WolverineRepository
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var query = @"
+        var query = $@"
             SELECT id, execution_time, body, message_type, received_at, 
                    source, exception_type, exception_message, sent_at, 
                    replayable,
                    substring(
                        encode(body, 'escape')
-                       FROM position('{' IN encode(body, 'escape'))
+                       FROM position('{{' IN encode(body, 'escape'))
                    ) AS json_body
-            FROM wolverine_dead_letters
+            FROM {GetTableName("wolverine_dead_letters")}
             WHERE id = @id AND received_at = @receivedAt";
 
         await using var command = new NpgsqlCommand(query, connection);
@@ -207,8 +216,8 @@ public class WolverineRepository
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var query = @"
-            UPDATE wolverine_dead_letters 
+        var query = $@"
+            UPDATE {GetTableName("wolverine_dead_letters")} 
             SET replayable = @replayable 
             WHERE id = @id AND received_at = @receivedAt";
 
@@ -229,8 +238,8 @@ public class WolverineRepository
         try
         {
             var totalUpdated = 0;
-            var query = @"
-                UPDATE wolverine_dead_letters 
+            var query = $@"
+                UPDATE {GetTableName("wolverine_dead_letters")} 
                 SET replayable = @replayable 
                 WHERE id = @id AND received_at = @receivedAt";
 
@@ -259,7 +268,7 @@ public class WolverineRepository
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var query = "DELETE FROM wolverine_dead_letters WHERE id = @id AND received_at = @receivedAt";
+        var query = $"DELETE FROM {GetTableName("wolverine_dead_letters")} WHERE id = @id AND received_at = @receivedAt";
 
         await using var command = new NpgsqlCommand(query, connection);
         command.Parameters.AddWithValue("id", id);
@@ -331,7 +340,7 @@ public class WolverineRepository
         var whereClause = whereConditions.Count > 0 ? "WHERE " + string.Join(" AND ", whereConditions) : "";
 
         // Get total count
-        var countQuery = $"SELECT COUNT(*) FROM wolverine_incoming_envelopes {whereClause}";
+        var countQuery = $"SELECT COUNT(*) FROM {GetTableName("wolverine_incoming_envelopes")} {whereClause}";
         int totalCount;
         await using (var countCommand = new NpgsqlCommand(countQuery, connection))
         {
@@ -347,7 +356,7 @@ public class WolverineRepository
         var query = $@"
             SELECT id, status, owner_id, execution_time, attempts, 
                    body, message_type, received_at, keep_until
-            FROM wolverine_incoming_envelopes
+            FROM {GetTableName("wolverine_incoming_envelopes")}
             {whereClause}
             ORDER BY execution_time DESC NULLS LAST
             LIMIT @limit OFFSET @offset";
@@ -380,7 +389,7 @@ public class WolverineRepository
         }
 
         // Get available filter options
-        var messageTypesQuery = "SELECT DISTINCT message_type FROM wolverine_incoming_envelopes WHERE message_type IS NOT NULL ORDER BY message_type";
+        var messageTypesQuery = $"SELECT DISTINCT message_type FROM {GetTableName("wolverine_incoming_envelopes")} WHERE message_type IS NOT NULL ORDER BY message_type";
         await using (var cmd = new NpgsqlCommand(messageTypesQuery, connection))
         {
             await using var reader = await cmd.ExecuteReaderAsync();
@@ -390,7 +399,7 @@ public class WolverineRepository
             }
         }
 
-        var statusesQuery = "SELECT DISTINCT status FROM wolverine_incoming_envelopes WHERE status IS NOT NULL ORDER BY status";
+        var statusesQuery = $"SELECT DISTINCT status FROM {GetTableName("wolverine_incoming_envelopes")} WHERE status IS NOT NULL ORDER BY status";
         await using (var cmd = new NpgsqlCommand(statusesQuery, connection))
         {
             await using var reader = await cmd.ExecuteReaderAsync();
@@ -414,10 +423,10 @@ public class WolverineRepository
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var query = @"
+        var query = $@"
             SELECT id, status, owner_id, execution_time, attempts, 
                    body, message_type, received_at, keep_until
-            FROM wolverine_incoming_envelopes
+            FROM {GetTableName("wolverine_incoming_envelopes")}
             WHERE id = @id AND received_at = @receivedAt";
 
         await using var command = new NpgsqlCommand(query, connection);
@@ -450,7 +459,7 @@ public class WolverineRepository
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var query = "DELETE FROM wolverine_incoming_envelopes WHERE id = @id AND received_at = @receivedAt";
+        var query = $"DELETE FROM {GetTableName("wolverine_incoming_envelopes")} WHERE id = @id AND received_at = @receivedAt";
 
         await using var command = new NpgsqlCommand(query, connection);
         command.Parameters.AddWithValue("id", id);
@@ -470,10 +479,10 @@ public class WolverineRepository
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var query = @"
+        var query = $@"
             SELECT id, node_number, description, uri, started, 
                    health_check, capabilities
-            FROM wolverine_nodes
+            FROM {GetTableName("wolverine_nodes")}
             ORDER BY node_number";
 
         await using var command = new NpgsqlCommand(query, connection);
@@ -501,10 +510,10 @@ public class WolverineRepository
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var query = @"
+        var query = $@"
             SELECT id, node_number, description, uri, started, 
                    health_check, capabilities
-            FROM wolverine_nodes
+            FROM {GetTableName("wolverine_nodes")}
             WHERE id = @id";
 
         await using var command = new NpgsqlCommand(query, connection);
@@ -534,7 +543,7 @@ public class WolverineRepository
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var query = "DELETE FROM wolverine_nodes WHERE id = @id";
+        var query = $"DELETE FROM {GetTableName("wolverine_nodes")} WHERE id = @id";
 
         await using var command = new NpgsqlCommand(query, connection);
         command.Parameters.AddWithValue("id", id);
@@ -553,9 +562,9 @@ public class WolverineRepository
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var query = @"
+        var query = $@"
             SELECT id, node_id, started
-            FROM wolverine_node_assignments
+            FROM {GetTableName("wolverine_node_assignments")}
             ORDER BY started DESC";
 
         await using var command = new NpgsqlCommand(query, connection);
@@ -579,9 +588,9 @@ public class WolverineRepository
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var query = @"
+        var query = $@"
             SELECT id, node_id, started
-            FROM wolverine_node_assignments
+            FROM {GetTableName("wolverine_node_assignments")}
             WHERE id = @id";
 
         await using var command = new NpgsqlCommand(query, connection);
@@ -607,7 +616,7 @@ public class WolverineRepository
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var query = "DELETE FROM wolverine_node_assignments WHERE id = @id";
+        var query = $"DELETE FROM {GetTableName("wolverine_node_assignments")} WHERE id = @id";
 
         await using var command = new NpgsqlCommand(query, connection);
         command.Parameters.AddWithValue("id", id);
@@ -630,28 +639,28 @@ public class WolverineRepository
         var replayableDeadLettersCount = 0;
 
         // Count dead letters
-        var query1 = "SELECT COUNT(*) FROM wolverine_dead_letters";
+        var query1 = $"SELECT COUNT(*) FROM {GetTableName("wolverine_dead_letters")}";
         await using (var cmd = new NpgsqlCommand(query1, connection))
         {
             deadLettersCount = Convert.ToInt32(await cmd.ExecuteScalarAsync());
         }
 
         // Count replayable dead letters
-        var query2 = "SELECT COUNT(*) FROM wolverine_dead_letters WHERE replayable = true";
+        var query2 = $"SELECT COUNT(*) FROM {GetTableName("wolverine_dead_letters")} WHERE replayable = true";
         await using (var cmd = new NpgsqlCommand(query2, connection))
         {
             replayableDeadLettersCount = Convert.ToInt32(await cmd.ExecuteScalarAsync());
         }
 
         // Count incoming envelopes
-        var query3 = "SELECT COUNT(*) FROM wolverine_incoming_envelopes";
+        var query3 = $"SELECT COUNT(*) FROM {GetTableName("wolverine_incoming_envelopes")}";
         await using (var cmd = new NpgsqlCommand(query3, connection))
         {
             incomingEnvelopesCount = Convert.ToInt32(await cmd.ExecuteScalarAsync());
         }
 
         // Count active nodes (health check within last 5 minutes)
-        var query4 = "SELECT COUNT(*) FROM wolverine_nodes WHERE health_check > @threshold";
+        var query4 = $"SELECT COUNT(*) FROM {GetTableName("wolverine_nodes")} WHERE health_check > @threshold";
         await using (var cmd = new NpgsqlCommand(query4, connection))
         {
             cmd.Parameters.AddWithValue("threshold", DateTime.UtcNow.AddMinutes(-5));

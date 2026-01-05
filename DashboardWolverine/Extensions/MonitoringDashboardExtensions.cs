@@ -34,7 +34,7 @@ public static class MonitoringDashboardExtensions
                 var services = serviceProvider.GetService<IServiceCollection>();
                 if (services != null)
                 {
-                    services.AddSingleton(new WolverineRepository(options.WolverineConnectionString));
+                    services.AddSingleton(new WolverineRepository(options.WolverineConnectionString, options.Schema));
                 }
             }
         }
@@ -61,7 +61,7 @@ public static class MonitoringDashboardExtensions
         // Register WolverineRepository if connection string is provided
         if (!string.IsNullOrWhiteSpace(options.WolverineConnectionString))
         {
-            services.AddSingleton(new WolverineRepository(options.WolverineConnectionString));
+            services.AddSingleton(new WolverineRepository(options.WolverineConnectionString, options.Schema));
         }
 
         return services;

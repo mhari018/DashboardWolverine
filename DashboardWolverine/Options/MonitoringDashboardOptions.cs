@@ -57,6 +57,14 @@ public class MonitoringDashboardOptions
     public string? WolverineConnectionString { get; set; }
 
     /// <summary>
+    /// Database schema untuk Wolverine tables.
+    /// Jika diset, semua query akan menggunakan schema prefix (e.g., "myschema.wolverine_dead_letters").
+    /// Jika null atau empty, query akan menggunakan default schema.
+    /// Default: null (menggunakan default schema)
+    /// </summary>
+    public string? Schema { get; set; }
+
+    /// <summary>
     /// Username untuk Basic Authentication.
     /// Jika diset (tidak null/empty), dashboard akan memerlukan Basic Auth.
     /// Username harus dikombinasikan dengan Password.
